@@ -106,7 +106,8 @@ use yii\helpers\Html;
                     ]);
                     ?>
                         <div class="control-group">
-                            <?php echo $form->field($search, 'title')->textInput(['class' => 'search-field', 'placeholder'=>"搜索商品"]); ?>
+                            <input type="text" name="" id="" class="search-field" placeholder="搜索商品">
+                            <?php //echo $form->field($search, 'title')->textInput(['class' => 'search-field', 'placeholder'=>"搜索商品"]); ?>
                             <ul class="categories-filter animate-dropdown">
                                 <li class="dropdown">
 
