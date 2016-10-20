@@ -64,7 +64,13 @@ class User extends ActiveRecord
         ];
     }
 
-    //后台添加用户
+    /**
+     * @param $data
+     * @param string $scenario
+     * @return bool|void
+     * 前台和后台注册,
+     * 写入主表user,附表数据profile
+     */
     public function reg($data, $scenario = 'reg')
     {
 
@@ -85,14 +91,13 @@ class User extends ActiveRecord
             $userid = $this->getPrimaryKey();
             //附表保存
             $profile = new Profile;
-//            var_dump($data);
+            var_dump($data);
 //            var_dump($data['Profile']['truename']);
 //            exit;
-            $profile->truename = $data['Profile']['truename'];
+            $profile->truename = $data['Profile']['truename']?$data['Profile']['truename']:'';
             $profile->userid = $userid;
             $profile->createtime = time();
             if ($profile->save(false)) {
-
                 return true;
             }
             return false;
