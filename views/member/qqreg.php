@@ -10,6 +10,8 @@
 			<div class="col-md-6">
 				<section class="section sign-in inner-right-xs">
                     <h2 class="bordered">
+
+                        <!--显示一个50像素的头像-->
                         <img src="<?php echo Yii::$app->session['userinfo']['figureurl_1'] ?>">
                         绑定QQ登录, 快速登录
                     </h2>

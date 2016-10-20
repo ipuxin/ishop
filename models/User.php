@@ -126,7 +126,10 @@ class User extends ActiveRecord
     public function login($data)
     {
 
-        //前置验证
+        /**
+         * 设置验证场景,
+         * 验证成功保存用户信息到session,
+         */
         $this->scenario = 'login';
         if ($this->load($data) && $this->validate()) {
             $lifetime = $this->rememberMe ? 24 * 3600 : 0;

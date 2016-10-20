@@ -9,10 +9,18 @@ class MemberController extends CommonController
 {
 //    public $layout = false;
 
-    //前台页面显示 与 登录判断入口
+    /**
+     * @return string|\yii\web\Response
+     * 登录入口,
+     * 判断正常登录 和第三方登录处理入口(显示第三方登录按钮)
+     */
     public function actionAuth()
     {
         $model = new User;
+
+        /**
+         * 征程登陆验证
+         */
         if (Yii::$app->request->isPost) {
             $post = Yii::$app->request->post();
             if ($model->login($post)) {
@@ -52,13 +60,16 @@ class MemberController extends CommonController
         return $this->render('auth', ['model' => $model]);
     }
 
-    //qq登录跳转
+    /**
+     * 点击qq登录后,处理qq登录开始,
+     * 随后显示跳转,该页面可以点击qq头像进行下一步操作
+     * 点击后,进入回调函数:actionQqcallback()
+     */
     public function actionQqlogin()
     {
         require_once("../vendor/qqlogin/qqConnectAPI.php");
         $qc = new \QC();
         $qc->qq_login();
-
     }
 
     /*
@@ -84,50 +95,84 @@ array(18) {
     ["is_yellow_year_vip"]=> string(1) "0" }
      */
 
+    /**
+     * @return \yii\web\Response
+     * 判断是否绑定过,
+     * 如果绑定过跳转到首页,否则,进入绑定处理:
+     */
     public function actionQqcallback()
     {
         require_once('../vendor/qqlogin/qqConnectAPI.php');
 
-        //获取用户信息
+        /**
+         * 获取用户授权后的信息
+         * 取得accessToken和openid
+         */
         $auth = new \OAuth();
         $accessToken = $auth->qq_callback();
         $openid = $auth->get_openid();
-        //获取用户信息
+
+        /**
+         * 根据accessToken和openid
+         * 获取用户信息
+         */
         $qc = new \QC($accessToken, $openid);
         $userinfo = $qc->get_user_info();
-        //存储用户信息
+
+        /**
+         * 存储用户信息
+         */
         $session = Yii::$app->session;
         $session['userinfo'] = $userinfo;
         $session['openid'] = $openid;
 
-        //如果用户已经绑定
+        /**
+         * 根据openid判断用户是否已经登录
+         * 如果用户已经绑定,存储用户登录信息,之后跳转到首页
+         */
         if (User::find()->where('openid=:openid', [':openid' => $openid])->one()) {
             $session['loginname'] = $userinfo['nickname'];
             $session['openid'] = $openid;
             $session['isLogin'] = 1;
             return $this->redirect(['index/index']);
         }
+
         //如果用户没有绑定,则让用户重新注册
         return $this->redirect(['member/qqreg']);
-
     }
 
-    //让用户绑定qq
+    /**
+     * @return string|\yii\web\Response
+     * 新绑定,执行注册操作
+     */
     public function actionQqreg()
     {
         //加载视图
         $this->layout = 'layout2';
         $model = new User;
+
+        /**
+         * 如果提交信息成功,就开始执行注册,
+         * 否则跳回qq绑定页面
+         */
         if (Yii::$app->request->isPost) {
             $post = Yii::$app->request->post();
             $session = Yii::$app->session;
             $post['User']['openid'] = $session['openid'];
 
+            /**
+             * 开始注册,设置新的注册场景qqreg,
+             * 如果祝成功,保存用户登录信息到session,之后跳转到首页
+             */
             if ($model->reg($post, 'qqreg')) {
                 $session['loginname'] = $session['userinfo']['nickname'];
                 $session['isLogin'] = 1;
                 return $this->redirect(['index/index']);
             }
+            /**
+             * yii2调试方法
+             */
+//            var_dump($model->getErrors());
         }
         return $this->render('qqreg', ['model' => $model]);
     }
