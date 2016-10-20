@@ -98,7 +98,7 @@ array(18) {
     /**
      * @return \yii\web\Response
      * 判断是否绑定过,
-     * 如果绑定过跳转到首页,否则,进入绑定处理:
+     * 如果绑定过跳转到首页,否则,进行绑定处理:
      */
     public function actionQqcallback()
     {
